@@ -3,16 +3,15 @@ import { Button } from "@/components/ui/button";
 import { useAuthContext } from "@/Context/LoginContext";
 import { Dispatch, FC, SetStateAction, useState } from "react";
 export interface IUserSocketTypes {
-  username: string;
+  [key: string]: string[];
 }
 interface IChatProps {
-  chat: IChatTypes[];
   setChat: Dispatch<SetStateAction<IChatTypes[]>>;
   message: string;
   setMessage: Dispatch<SetStateAction<string>>;
 }
-const Chat: FC<IChatProps> = ({ chat, message, setMessage }) => {
-  const { user, handleLogOut, wlc, socket, users } = useAuthContext();
+const Chat: FC<IChatProps> = ({ message, setMessage }) => {
+  const { chat, user, handleLogOut, wlc, socket, users } = useAuthContext();
   const [reciverName, setReciverName] = useState<string[]>([]);
 
   console.log(reciverName, "reciverName");
@@ -57,11 +56,16 @@ const Chat: FC<IChatProps> = ({ chat, message, setMessage }) => {
       </div>
       <div className="flex flex-col gap-2 justify-center items-center p-2">
         {wlc}
-        <div className="h-36 w-72 rounded overflow-y-auto border-slate-500 border flex gap-2">
-          {chat.map((msg, index) => (
+        <div className="h-36 w-72 rounded overflow-y-auto border-slate-500 border flex gap-2  flex-col">
+          {Object.keys(chat).map((item, index) => (
             <div key={index} className="flex flex-col gap-1">
-              <p> {msg.msg}</p>
-              <p>From : {msg.senderName}</p>
+              <p>
+                <span className="font-bold">
+                  From :{" "}
+                  {item === user &&
+                    chat[item].map((item, i) => <p key={i}>{item}</p>)}
+                </span>{" "}
+              </p>
             </div>
           ))}
         </div>
@@ -69,11 +73,14 @@ const Chat: FC<IChatProps> = ({ chat, message, setMessage }) => {
           <form onSubmit={handleSubmit} className="flex gap-2">
             <select name="reciverName" onChange={handleSelectChange}>
               <option>select option</option>
-              {users.map((user) => (
-                <option key={user.username} value={user.username}>
-                  {user.username}
-                </option>
-              ))}
+              {Object.keys(users).map((username) => {
+                console.log(username, "username");
+                return (
+                  <option key={username} value={username}>
+                    {username}
+                  </option>
+                );
+              })}
             </select>
             <input
               name="msg"
